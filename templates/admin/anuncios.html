@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar anuncios | Humahuaca{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Administración</p>
+    <h1>Gestionar anuncios</h1>
+</section>
+
+<section class="form-panel">
+    <h2>Publicar anuncio</h2>
+    <form method="post" class="stack-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+        <label for="titulo">Título *</label>
+        <input id="titulo" name="titulo" maxlength="150" required>
+
+        <label for="contenido">Contenido *</label>
+        <textarea id="contenido" name="contenido" rows="5" maxlength="5000" required></textarea>
+
+        <button type="submit">Publicar anuncio</button>
+    </form>
+</section>
+
+<section class="section">
+    <h2>Anuncios existentes</h2>
+    {% if anuncios %}
+        <div class="announcement-list">
+        {% for anuncio in anuncios %}
+            <article class="announcement">
+                <div class="section-heading">
+                    <h3>{{ anuncio['titulo'] }}</h3>
+                    <span class="status">{{ 'Activo' if anuncio['activo'] else 'Inactivo' }}</span>
+                </div>
+                <p class="preserve-lines">{{ anuncio['contenido'] }}</p>
+                <form method="post" action="{{ url_for('admin_estado_anuncio', anuncio_id=anuncio['id']) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <button class="button-secondary" type="submit">
+                        {{ 'Desactivar' if anuncio['activo'] else 'Activar' }}
+                    </button>
+                </form>
+            </article>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">Todavía no hay anuncios.</p>
+    {% endif %}
+</section>
+{% endblock %}

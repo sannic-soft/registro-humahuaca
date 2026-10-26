@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Base de datos y archivos locales
+instance/*.db
+instance/*.db-*
+uploads/*
+!uploads/.gitkeep
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Editores
+.vscode/
+.idea/
+
+# Pruebas
+.pytest_cache/
+.coverage

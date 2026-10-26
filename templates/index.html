@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio | Alojamientos de Humahuaca{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">Quebrada de Humahuaca · Jujuy</p>
+    <h1>Encontrá tu alojamiento en Humahuaca</h1>
+    <p>Consultá opciones de hospedaje, conocé sus características y contactá directamente a cada establecimiento.</p>
+    <form class="search-form" action="{{ url_for('alojamientos') }}" method="get">
+        <label class="sr-only" for="busqueda">Buscar alojamiento</label>
+        <input id="busqueda" type="search" name="q" placeholder="Nombre, tipo, zona o servicios">
+        <button type="submit">Buscar</button>
+    </form>
+</section>
+
+<section class="section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Novedades</p>
+            <h2>Anuncios</h2>
+        </div>
+    </div>
+    {% if anuncios %}
+        <div class="announcement-list">
+            {% for anuncio in anuncios %}
+                <article class="announcement">
+                    <h3>{{ anuncio['titulo'] }}</h3>
+                    <p>{{ anuncio['contenido'] }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">Todavía no hay anuncios publicados.</p>
+    {% endif %}
+</section>
+
+<section class="section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Descubrí opciones</p>
+            <h2>Alojamientos</h2>
+        </div>
+        <a href="{{ url_for('alojamientos') }}">Ver todos →</a>
+    </div>
+
+    {% if alojamientos %}
+        <div class="card-grid">
+            {% for alojamiento in alojamientos %}
+                <article class="listing-card">
+                    <p class="eyebrow">{{ alojamiento['tipo'] }}</p>
+                    <h3>{{ alojamiento['nombre'] }}</h3>
+                    <p>{{ alojamiento['direccion'] }}</p>
+                    <p>{{ alojamiento['capacidad'] }} persona(s)</p>
+                    <p>{{ alojamiento['descripcion']|truncate(130) }}</p>
+                    <a class="text-link" href="{{ url_for('alojamiento_detalle', alojamiento_id=alojamiento['id']) }}">Ver detalles →</a>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">Todavía no hay alojamientos publicados.</p>
+    {% endif %}
+</section>
+{% endblock %}
