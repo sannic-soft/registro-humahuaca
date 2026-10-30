@@ -444,4 +444,40 @@ td {
     .form-panel {
         padding: 17px;
     }
+
+
+}
+
+/* Galería de imágenes del alojamiento */
+
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.gallery-item {
+    margin: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #eee;
+}
+
+.gallery-item img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+/* Imagen de las tarjetas de alojamientos */
+
+.listing-image {
+    display: block;
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 14px;
 }

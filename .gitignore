@@ -22,3 +22,10 @@ uploads/*
 # Pruebas
 .pytest_cache/
 .coverage
+
+# Ignorar todos los archivos y carpetas .legacy
+*.legacy
+**/*.legacy
+
+# Archivos de respaldo de editores
+*~

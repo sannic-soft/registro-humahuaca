@@ -11,20 +11,11 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <a class="brand" href="{{ url_for('index') }}">Humahuaca <span>Alojamientos</span></a>
+            <a class="brand" href="{{ url_for('public.index') }}">Humahuaca <span>Alojamientos</span></a>
             <nav aria-label="Navegación principal">
-                <a href="{{ url_for('index') }}">Inicio</a>
-                <a href="{{ url_for('alojamientos') }}">Alojamientos</a>
-                {% if session.get('admin') %}
-                    <a href="{{ url_for('admin_dashboard') }}">Administración</a>
-                    <form class="inline-form" action="{{ url_for('logout') }}" method="post">
-                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                        <button class="nav-button" type="submit">Salir</button>
-                    </form>
-                {% else %}
-                    <a href="{{ url_for('login') }}">Administración</a>
-                {% endif %}
-            </nav>
+	      <a href="{{ url_for('public.index') }}">Inicio</a>
+	      <a href="{{ url_for('public.alojamientos') }}">Alojamientos</a>
+	    </nav>
         </div>
     </header>
 
