@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+
+{% block title %}Crear cuenta | Humahuaca{% endblock %}
+
+{% block content %}
+<section class="form-panel narrow-panel">
+
+    <p class="eyebrow">Registro de usuario</p>
+    <h1>Crear una cuenta</h1>
+
+    <p>
+        Registrate para poder solicitar reservas
+        en los alojamientos publicados.
+    </p>
+
+    <form method="post" class="stack-form">
+
+        <input
+            type="hidden"
+            name="_csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <label for="nombre">Nombre completo</label>
+        <input
+            id="nombre"
+            type="text"
+            name="nombre"
+            maxlength="100"
+            autocomplete="name"
+            required
+        >
+
+        <label for="email">Correo electrónico</label>
+        <input
+            id="email"
+            type="email"
+            name="email"
+            maxlength="254"
+            autocomplete="email"
+            required
+        >
+
+        <label for="password">Contraseña</label>
+        <input
+            id="password"
+            type="password"
+            name="password"
+            minlength="8"
+            autocomplete="new-password"
+            required
+        >
+
+        <label for="confirmacion">Confirmar contraseña</label>
+        <input
+            id="confirmacion"
+            type="password"
+            name="confirmacion"
+            minlength="8"
+            autocomplete="new-password"
+            required
+        >
+
+        <button type="submit">Crear cuenta</button>
+
+    </form>
+
+    <p>
+        ¿Ya tenés una cuenta?
+        <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+    </p>
+
+</section>
+{% endblock %}

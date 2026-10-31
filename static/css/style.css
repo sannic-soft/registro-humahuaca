@@ -481,3 +481,32 @@ td {
     border-radius: 8px;
     margin-bottom: 14px;
 }
+
+
+/* Controles de administración de alojamientos */
+
+.alojamiento-row {
+    scroll-margin-top: 24px;
+}
+
+.estado-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 135px;
+}
+
+.estado-form select {
+    padding: 9px 10px;
+}
+
+.estado-form button {
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+@media (max-width: 760px) {
+    .estado-form {
+        min-width: 150px;
+    }
+}

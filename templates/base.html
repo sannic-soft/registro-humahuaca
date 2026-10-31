@@ -11,25 +11,42 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <a class="brand" href="{{ url_for('public.index') }}">Humahuaca <span>Alojamientos</span></a>
-            <nav aria-label="Navegación principal">
+          <a class="brand" href="{{ url_for('public.index') }}">Humahuaca <span>Alojamientos</span></a>
+	    <nav aria-label="Navegación principal">
 	      <a href="{{ url_for('public.index') }}">Inicio</a>
 	      <a href="{{ url_for('public.alojamientos') }}">Alojamientos</a>
+
+	      {% if session.get('usuario_id') %}
+              <span>Hola, {{ session.get('usuario_nombre') }}</span>
+
+              <form action="{{ url_for('auth.logout') }}" method="POST">
+		<input
+                  type="hidden"
+                  name="_csrf_token"
+                  value="{{ csrf_token() }}"
+		  >
+		<button type="submit">Cerrar sesión</button>
+              </form>
+	      {% else %}
+              <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+              <a href="{{ url_for('auth.registro') }}">Registrarse</a>
+	      {% endif %}
 	    </nav>
         </div>
     </header>
 
     <main class="container main-content">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="messages" aria-live="polite">
-                    {% for category, message in messages %}
-                        <p class="message {{ category }}">{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% set global_messages = messages | rejectattr('0', 'equalto', 'alojamiento') | list %}
 
+      {% if global_messages %}
+        <div class="messages" aria-live="polite">
+            {% for category, message in global_messages %}
+                <p class="message {{ category }}">{{ message }}</p>
+            {% endfor %}
+          </div>
+	{% endif %}
+	{% endwith %}
         {% block content %}{% endblock %}
     </main>
 

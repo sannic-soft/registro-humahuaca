@@ -3,18 +3,29 @@
 {% block title %}Gestionar alojamientos | Humahuaca{% endblock %}
 
 {% block content %}
+
+{% set mensajes_alojamiento = get_flashed_messages(category_filter=['alojamiento']) %}
+
 <section class="page-heading">
     <p class="eyebrow">Administración</p>
     <h1>Gestionar alojamientos</h1>
+    <p>Administrá los establecimientos registrados en la plataforma.</p>
 </section>
 
 <section class="form-panel">
     <h2>Agregar alojamiento</h2>
+
     <form method="post" class="stack-form">
+
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
         <label for="nombre">Nombre del establecimiento *</label>
-        <input id="nombre" name="nombre" maxlength="150" required>
+        <input
+            id="nombre"
+            name="nombre"
+            maxlength="150"
+            required
+        >
 
         <label for="tipo">Tipo de alojamiento *</label>
         <select id="tipo" name="tipo" required>
@@ -29,53 +40,171 @@
         </select>
 
         <label for="direccion">Dirección o ubicación *</label>
-        <input id="direccion" name="direccion" maxlength="250" required>
+        <input
+            id="direccion"
+            name="direccion"
+            maxlength="250"
+            required
+        >
 
         <label for="capacidad">Capacidad de personas *</label>
-        <input id="capacidad" name="capacidad" type="number" min="1" max="1000" value="1" required>
+        <input
+            id="capacidad"
+            name="capacidad"
+            type="number"
+            min="1"
+            max="1000"
+            value="1"
+            required
+        >
 
         <label for="telefono">Teléfono de contacto</label>
-        <input id="telefono" name="telefono" maxlength="40">
+        <input
+            id="telefono"
+            name="telefono"
+            maxlength="40"
+        >
 
         <label for="servicios">Servicios</label>
-        <textarea id="servicios" name="servicios" rows="3" maxlength="2000" placeholder="Wi-Fi, desayuno, estacionamiento..."></textarea>
+        <textarea
+            id="servicios"
+            name="servicios"
+            rows="3"
+            maxlength="2000"
+            placeholder="Wi-Fi, desayuno, estacionamiento..."
+        ></textarea>
 
         <label for="descripcion">Descripción</label>
-        <textarea id="descripcion" name="descripcion" rows="4" maxlength="5000"></textarea>
+        <textarea
+            id="descripcion"
+            name="descripcion"
+            rows="4"
+            maxlength="5000"
+        ></textarea>
 
         <button type="submit">Guardar alojamiento</button>
+
     </form>
 </section>
 
 <section class="section">
     <h2>Registros existentes</h2>
+
     {% if alojamientos %}
+
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr><th>Nombre</th><th>Tipo</th><th>Estado</th><th>Acción</th></tr>
-                </thead>
-                <tbody>
-                {% for alojamiento in alojamientos %}
                     <tr>
-                        <td>{{ alojamiento['nombre'] }}</td>
-                        <td>{{ alojamiento['tipo'] }}</td>
-                        <td>{{ 'Activo' if alojamiento['activo'] else 'Inactivo' }}</td>
-                        <td>
-                            <form method="post" action="{{ url_for('admin_estado_alojamiento', alojamiento_id=alojamiento['id']) }}">
-                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                                <button class="button-secondary" type="submit">
-                                    {{ 'Desactivar' if alojamiento['activo'] else 'Activar' }}
-                                </button>
-                            </form>
-                        </td>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Propietario</th>
+                        <th>Estado</th>
+                        <th>Capacidad</th>
+                        <th>Modificar estado</th>
                     </tr>
-                {% endfor %}
+                </thead>
+
+                <tbody>
+                    {% for alojamiento in alojamientos %}
+                        <tr
+                            id="alojamiento-{{ alojamiento['id'] }}"
+                            class="alojamiento-row"
+                        >
+                            <td>
+                                {{ alojamiento['nombre'] }}
+
+                                {% if request.args.get('actualizado')|int == alojamiento['id'] %}
+                                    {% for mensaje in mensajes_alojamiento %}
+                                        <p class="message success">
+                                            {{ mensaje }}
+                                        </p>
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+
+                            <td>{{ alojamiento['tipo'] }}</td>
+
+                            <td>
+                                {{ alojamiento['propietario_nombre'] }}
+                                <br>
+                                <small>
+                                    {{ alojamiento['propietario_email'] }}
+                                </small>
+                            </td>
+
+                            <td>{{ alojamiento['estado'] }}</td>
+
+                            <td>
+                                {{ alojamiento['capacidad'] }} personas
+                            </td>
+
+                            <td>
+                                <form
+                                    method="post"
+                                    class="estado-form"
+                                    action="{{ url_for(
+                                        'admin.cambiar_estado_alojamiento',
+                                        alojamiento_id=alojamiento['id']
+                                    ) }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="_csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <select name="estado" required>
+                                        <option
+                                            value="borrador"
+                                            {% if alojamiento['estado'] == 'borrador' %}selected{% endif %}
+                                        >
+                                            Borrador
+                                        </option>
+
+                                        <option
+                                            value="pendiente"
+                                            {% if alojamiento['estado'] == 'pendiente' %}selected{% endif %}
+                                        >
+                                            Pendiente
+                                        </option>
+
+                                        <option
+                                            value="publicado"
+                                            {% if alojamiento['estado'] == 'publicado' %}selected{% endif %}
+                                        >
+                                            Publicado
+                                        </option>
+
+                                        <option
+                                            value="suspendido"
+                                            {% if alojamiento['estado'] == 'suspendido' %}selected{% endif %}
+                                        >
+                                            Suspendido
+                                        </option>
+                                    </select>
+
+                                    <button
+                                        class="button-secondary"
+                                        type="submit"
+                                    >
+                                        Actualizar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
+
     {% else %}
-        <p class="empty-state">Todavía no hay registros.</p>
+
+        <p class="empty-state">
+            Todavía no hay alojamientos registrados.
+        </p>
+
     {% endif %}
 </section>
+
 {% endblock %}

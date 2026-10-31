@@ -10,24 +10,38 @@
 </section>
 
 <div class="stats-grid">
+
     <article class="stat-card">
-        <span class="muted">Alojamientos activos</span>
+        <span class="muted">Usuarios registrados</span>
+        <strong>{{ cantidad_usuarios }}</strong>
+    </article>
+
+    <article class="stat-card">
+        <span class="muted">Alojamientos registrados</span>
         <strong>{{ cantidad_alojamientos }}</strong>
     </article>
+
+    <article class="stat-card">
+        <span class="muted">Alojamientos publicados</span>
+        <strong>{{ cantidad_publicados }}</strong>
+    </article>
+
+    <article class="stat-card">
+        <span class="muted">Alojamientos pendientes</span>
+        <strong>{{ cantidad_pendientes }}</strong>
+    </article>
+
     <article class="stat-card">
         <span class="muted">Anuncios activos</span>
         <strong>{{ cantidad_anuncios }}</strong>
     </article>
+
 </div>
 
 <div class="admin-links">
-    <a class="admin-link" href="{{ url_for('admin_alojamientos') }}">
-        <h2>Gestionar alojamientos</h2>
-        <p>Agregar establecimientos y activar o desactivar registros.</p>
-    </a>
-    <a class="admin-link" href="{{ url_for('admin_anuncios') }}">
-        <h2>Gestionar anuncios</h2>
-        <p>Publicar novedades y administrar su visibilidad.</p>
-    </a>
+    <article class="admin-link">
+        <h2>Panel administrativo</h2>
+        <p>La gestión de alojamientos, anuncios y usuarios estará disponible próximamente.</p>
+    </article>
 </div>
 {% endblock %}
