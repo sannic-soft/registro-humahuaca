@@ -510,3 +510,22 @@ td {
         min-width: 150px;
     }
 }
+
+/* Acciones de administración de anuncios */
+
+.announcement-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.announcement-actions form {
+    margin: 0;
+}
+
+.announcement-actions .text-link {
+    display: inline-block;
+    padding: 7px 0;
+}

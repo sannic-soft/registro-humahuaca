@@ -19,13 +19,19 @@
 	      {% if session.get('usuario_id') %}
               <span>Hola, {{ session.get('usuario_nombre') }}</span>
 
-              <form action="{{ url_for('auth.logout') }}" method="POST">
+              <form
+		class="inline-form"
+		action="{{ url_for('auth.logout') }}"
+		method="POST"
+		>
 		<input
                   type="hidden"
                   name="_csrf_token"
                   value="{{ csrf_token() }}"
 		  >
-		<button type="submit">Cerrar sesión</button>
+		<button class="nav-button" type="submit">
+		  Cerrar sesión
+		</button>
               </form>
 	      {% else %}
               <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
@@ -37,7 +43,7 @@
 
     <main class="container main-content">
       {% with messages = get_flashed_messages(with_categories=true) %}
-      {% set global_messages = messages | rejectattr('0', 'equalto', 'alojamiento') | list %}
+      {% set global_messages = messages | rejectattr('0', 'in', ['alojamiento', 'anuncio']) | list %}
 
       {% if global_messages %}
         <div class="messages" aria-live="polite">

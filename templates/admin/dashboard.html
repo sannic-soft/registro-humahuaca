@@ -39,9 +39,22 @@
 </div>
 
 <div class="admin-links">
-    <article class="admin-link">
-        <h2>Panel administrativo</h2>
-        <p>La gestión de alojamientos, anuncios y usuarios estará disponible próximamente.</p>
-    </article>
+
+    <a class="admin-link" href="{{ url_for('admin.alojamientos') }}">
+        <h2>Gestionar alojamientos</h2>
+        <p>
+            Consultá los alojamientos registrados, revisá su estado
+            y administrá las publicaciones.
+        </p>
+    </a>
+
+    <a class="admin-link" href="{{ url_for('admin.anuncios') }}">
+        <h2>Gestionar anuncios</h2>
+        <p>
+            Creá, editá, activá o desactivá los anuncios
+            que se muestran en la página pública.
+        </p>
+    </a>
+
 </div>
 {% endblock %}

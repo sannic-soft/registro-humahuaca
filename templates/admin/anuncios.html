@@ -3,6 +3,7 @@
 {% block title %}Gestionar anuncios | Humahuaca{% endblock %}
 
 {% block content %}
+{% set mensajes_anuncio = get_flashed_messages(category_filter=['anuncio']) %}
 <section class="page-heading">
     <p class="eyebrow">Administración</p>
     <h1>Gestionar anuncios</h1>
@@ -10,7 +11,7 @@
 
 <section class="form-panel">
     <h2>Publicar anuncio</h2>
-    <form method="post" class="stack-form">
+    <form method="post" action="{{ url_for('admin.crear_anuncio') }}" class="stack-form">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
         <label for="titulo">Título *</label>
@@ -28,18 +29,40 @@
     {% if anuncios %}
         <div class="announcement-list">
         {% for anuncio in anuncios %}
-            <article class="announcement">
+            <article class="announcement" id="anuncio-{{ anuncio['id'] }}">
                 <div class="section-heading">
-                    <h3>{{ anuncio['titulo'] }}</h3>
+                  <h3>{{ anuncio['titulo'] }}</h3>
+		    {% if request.args.get('actualizado')|int == anuncio['id'] %}
+		        {% for mensaje in mensajes_anuncio %}
+		           <p class="message success">{{ mensaje }}</p>
+			{% endfor %}
+		    {% endif %}
                     <span class="status">{{ 'Activo' if anuncio['activo'] else 'Inactivo' }}</span>
                 </div>
                 <p class="preserve-lines">{{ anuncio['contenido'] }}</p>
-                <form method="post" action="{{ url_for('admin_estado_anuncio', anuncio_id=anuncio['id']) }}">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                    <button class="button-secondary" type="submit">
-                        {{ 'Desactivar' if anuncio['activo'] else 'Activar' }}
-                    </button>
-                </form>
+		<div class="announcement-actions">
+		  <a
+		    class="text-link"
+		    href="{{ url_for('admin.editar_anuncio', anuncio_id=anuncio['id']) }}"
+		    >
+		    Editar
+		  </a>
+
+		  <form
+		    method="post"
+		    action="{{ url_for('admin.cambiar_estado_anuncio', anuncio_id=anuncio['id']) }}"
+		    >
+		    <input
+		      type="hidden"
+		      name="_csrf_token"
+		      value="{{ csrf_token() }}"
+		    >
+
+		    <button class="button-secondary" type="submit">
+		      {{ 'Desactivar' if anuncio['activo'] else 'Activar' }}
+		    </button>
+		  </form>
+		</div>
             </article>
         {% endfor %}
         </div>

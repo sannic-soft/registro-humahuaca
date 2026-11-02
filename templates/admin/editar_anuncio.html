@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Editar anuncio | Humahuaca{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <p class="eyebrow">Administración</p>
+    <h1>Editar anuncio</h1>
+    <p>Modificá el título y el contenido del anuncio.</p>
+</section>
+
+<section class="form-panel">
+    <form
+        method="post"
+        action="{{ url_for('admin.editar_anuncio', anuncio_id=anuncio['id']) }}"
+        class="stack-form"
+    >
+
+        <input
+            type="hidden"
+            name="_csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <label for="titulo">Título *</label>
+        <input
+            id="titulo"
+            name="titulo"
+            maxlength="150"
+            value="{{ anuncio['titulo'] }}"
+            required
+        >
+
+        <label for="contenido">Contenido *</label>
+        <textarea
+            id="contenido"
+            name="contenido"
+            rows="6"
+            maxlength="5000"
+            required
+        >{{ anuncio['contenido'] }}</textarea>
+
+        <button type="submit">Guardar cambios</button>
+
+    </form>
+
+    <p>
+        <a href="{{ url_for('admin.anuncios') }}">
+            Volver a los anuncios
+        </a>
+    </p>
+</section>
+
+{% endblock %}

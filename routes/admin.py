@@ -218,3 +218,209 @@ def cambiar_estado_alojamiento(alojamiento_id):
         )
         + f"#alojamiento-{alojamiento_id}"
     )
+
+
+@bp.route("/anuncios", methods=("GET",))
+@roles_required("admin")
+def anuncios():
+    """Muestra todos los anuncios, activos e inactivos."""
+    db = get_db()
+
+    anuncios = db.execute(
+        """
+        SELECT id, titulo, descripcion AS contenido, activo, creado_en
+        FROM anuncios
+        ORDER BY creado_en DESC, id DESC
+        """
+    ).fetchall()
+
+    return render_template(
+        "admin/anuncios.html",
+        anuncios=anuncios
+    )
+
+
+@bp.route("/anuncios/crear", methods=("POST",))
+@roles_required("admin")
+def crear_anuncio():
+    """Crea un anuncio nuevo."""
+    if not validar_csrf():
+        flash("La solicitud no es válida. Intentá nuevamente.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    titulo = request.form.get("titulo", "").strip()
+    contenido = request.form.get("contenido", "").strip()
+
+    if not titulo or not contenido:
+        flash("El título y el contenido son obligatorios.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    if len(titulo) > 150:
+        flash("El título no puede superar los 150 caracteres.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    if len(contenido) > 5000:
+        flash("El contenido no puede superar los 5000 caracteres.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    db = get_db()
+
+    try:
+        db.execute(
+            """
+            INSERT INTO anuncios (titulo, descripcion)
+            VALUES (?, ?)
+            """,
+            (titulo, contenido)
+        )
+        db.commit()
+        anuncio_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+    except sqlite3.Error:
+        db.rollback()
+        flash("No se pudo crear el anuncio. Intentá nuevamente.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    flash(
+        "El anuncio fue creado correctamente.",
+        category="anuncio"
+    )
+
+    return redirect(
+        url_for("admin.anuncios", actualizado=anuncio_id)
+        + f"#anuncio-{anuncio_id}"
+    )
+
+
+@bp.route(
+    "/anuncios/editar/<int:anuncio_id>",
+    methods=("GET", "POST")
+)
+@roles_required("admin")
+def editar_anuncio(anuncio_id):
+    """Muestra y procesa la edición de un anuncio."""
+    db = get_db()
+
+    anuncio = db.execute(
+        """
+        SELECT id, titulo, descripcion AS contenido, activo, creado_en
+        FROM anuncios
+        WHERE id = ?
+        """,
+        (anuncio_id,)
+    ).fetchone()
+
+    if anuncio is None:
+        flash("El anuncio solicitado no existe.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    if request.method == "POST":
+
+        if not validar_csrf():
+            flash("La solicitud no es válida. Intentá nuevamente.", "error")
+            return redirect(url_for("admin.anuncios"))
+
+        titulo = request.form.get("titulo", "").strip()
+        contenido = request.form.get("contenido", "").strip()
+
+        if not titulo or not contenido:
+            flash("El título y el contenido son obligatorios.", "error")
+            return redirect(
+                url_for("admin.editar_anuncio", anuncio_id=anuncio_id)
+            )
+
+        if len(titulo) > 150:
+            flash("El título no puede superar los 150 caracteres.", "error")
+            return redirect(
+                url_for("admin.editar_anuncio", anuncio_id=anuncio_id)
+            )
+
+        if len(contenido) > 5000:
+            flash("El contenido no puede superar los 5000 caracteres.", "error")
+            return redirect(
+                url_for("admin.editar_anuncio", anuncio_id=anuncio_id)
+            )
+
+        try:
+            db.execute(
+                """
+                UPDATE anuncios
+                SET titulo = ?, descripcion = ?
+                WHERE id = ?
+                """,
+                (titulo, contenido, anuncio_id)
+            )
+            db.commit()
+
+        except sqlite3.Error:
+            db.rollback()
+            flash("No se pudo actualizar el anuncio.", "error")
+            return redirect(
+                url_for("admin.editar_anuncio", anuncio_id=anuncio_id)
+            )
+
+        flash(
+            "El anuncio fue actualizado correctamente.",
+            category="anuncio"
+        )
+
+        return redirect(
+            url_for("admin.anuncios", actualizado=anuncio_id)
+            + f"#anuncio-{anuncio_id}"
+        )
+
+    return render_template(
+        "admin/editar_anuncio.html",
+        anuncio=anuncio
+    )
+
+@bp.route(
+    "/anuncios/estado/<int:anuncio_id>",
+    methods=("POST",)
+)
+@roles_required("admin")
+def cambiar_estado_anuncio(anuncio_id):
+    """Activa o desactiva un anuncio."""
+    if not validar_csrf():
+        flash("La solicitud no es válida. Intentá nuevamente.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    db = get_db()
+
+    anuncio = db.execute(
+        "SELECT id, activo FROM anuncios WHERE id = ?",
+        (anuncio_id,)
+    ).fetchone()
+
+    if anuncio is None:
+        flash("El anuncio solicitado no existe.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    nuevo_estado = 0 if anuncio["activo"] else 1
+
+    try:
+        db.execute(
+            """
+            UPDATE anuncios
+            SET activo = ?
+            WHERE id = ?
+            """,
+            (nuevo_estado, anuncio_id)
+        )
+        db.commit()
+
+    except sqlite3.Error:
+        db.rollback()
+        flash("No se pudo cambiar el estado del anuncio.", "error")
+        return redirect(url_for("admin.anuncios"))
+
+    mensaje = "activado" if nuevo_estado else "desactivado"
+    flash(
+        f"El anuncio fue {mensaje} correctamente.",
+        category="anuncio"
+    )
+
+    return redirect(
+        url_for("admin.anuncios", actualizado=anuncio_id)
+        + f"#anuncio-{anuncio_id}"
+    )
