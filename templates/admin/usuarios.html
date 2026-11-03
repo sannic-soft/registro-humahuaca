@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar usuarios | Humahuaca{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <p class="eyebrow">Administración</p>
+    <h1>Gestionar usuarios</h1>
+    <p>Administrá las cuentas, los permisos y el acceso a la plataforma.</p>
+</section>
+
+<section class="section">
+    <h2>Cuentas registradas</h2>
+
+    {% if usuarios %}
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Modificar rol</th>
+                        <th>Acceso</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for usuario in usuarios %}
+                        <tr>
+                            <td>
+                                <strong>{{ usuario['nombre'] }}</strong>
+                                <br>
+                                <small>{{ usuario['email'] }}</small>
+                                {% if usuario['id'] == session.get('usuario_id') %}
+                                    <br>
+                                    <small class="status">Tu cuenta</small>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ usuario['rol'] }}
+                            </td>
+
+                            <td>
+                                {{ 'Activa' if usuario['activo'] else 'Desactivada' }}
+                            </td>
+
+                            <td>
+                                {% if usuario['rol'] != 'admin' and usuario['id'] != session.get('usuario_id') %}
+                                    <form
+                                        method="post"
+                                        class="estado-form"
+                                        action="{{ url_for(
+                                            'admin.cambiar_rol_usuario',
+                                            usuario_id=usuario['id']
+                                        ) }}"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="_csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <select name="rol" required>
+                                            <option
+                                                value="usuario"
+                                                {% if usuario['rol'] == 'usuario' %}selected{% endif %}
+                                            >
+                                                Usuario
+                                            </option>
+
+                                            <option
+                                                value="propietario"
+                                                {% if usuario['rol'] == 'propietario' %}selected{% endif %}
+                                            >
+                                                Propietario
+                                            </option>
+                                        </select>
+
+                                        <button
+                                            class="button-secondary"
+                                            type="submit"
+                                        >
+                                            Actualizar
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="status">No modificable</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if usuario['rol'] != 'admin' and usuario['id'] != session.get('usuario_id') %}
+                                    <form
+                                        method="post"
+                                        action="{{ url_for(
+                                            'admin.cambiar_estado_usuario',
+                                            usuario_id=usuario['id']
+                                        ) }}"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="_csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <button
+                                            class="button-secondary"
+                                            type="submit"
+                                        >
+                                            {{ 'Desactivar' if usuario['activo'] else 'Activar' }}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="status">No modificable</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+
+        <p class="empty-state">
+            Todavía no hay usuarios registrados.
+        </p>
+
+    {% endif %}
+</section>
+
+{% endblock %}

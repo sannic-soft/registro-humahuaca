@@ -424,3 +424,137 @@ def cambiar_estado_anuncio(anuncio_id):
         url_for("admin.anuncios", actualizado=anuncio_id)
         + f"#anuncio-{anuncio_id}"
     )
+
+
+@bp.route("/usuarios", methods=("GET",))
+@roles_required("admin")
+def usuarios():
+    """Muestra las cuentas registradas en la plataforma."""
+    db = get_db()
+
+    usuarios = db.execute(
+        """
+        SELECT id, nombre, email, rol, activo, creado_en
+        FROM usuarios
+        ORDER BY
+            CASE rol
+                WHEN 'admin' THEN 0
+                WHEN 'propietario' THEN 1
+                ELSE 2
+            END,
+            nombre COLLATE NOCASE
+        """
+    ).fetchall()
+
+    return render_template(
+        "admin/usuarios.html",
+        usuarios=usuarios
+    )
+
+
+@bp.route(
+    "/usuarios/<int:usuario_id>/rol",
+    methods=("POST",)
+)
+@roles_required("admin")
+def cambiar_rol_usuario(usuario_id):
+    """Cambia entre usuario común y propietario."""
+
+    if not validar_csrf():
+        flash("La solicitud no es válida. Intentá nuevamente.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    if usuario_id == session.get("usuario_id"):
+        flash("No podés modificar tu propia cuenta.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    nuevo_rol = request.form.get("rol", "").strip()
+
+    if nuevo_rol not in ("usuario", "propietario"):
+        flash("El rol seleccionado no es válido.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    db = get_db()
+
+    usuario = db.execute(
+        "SELECT id, rol FROM usuarios WHERE id = ?",
+        (usuario_id,)
+    ).fetchone()
+
+    if usuario is None:
+        flash("El usuario no existe.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    if usuario["rol"] == "admin":
+        flash("No se puede modificar una cuenta de administrador.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    try:
+        db.execute(
+            "UPDATE usuarios SET rol = ? WHERE id = ?",
+            (nuevo_rol, usuario_id)
+        )
+        db.commit()
+
+    except sqlite3.Error:
+        db.rollback()
+        flash("No se pudo actualizar el rol del usuario.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    flash("El rol del usuario fue actualizado correctamente.", "success")
+    return redirect(url_for("admin.usuarios"))
+
+
+@bp.route(
+    "/usuarios/<int:usuario_id>/estado",
+    methods=("POST",)
+)
+@roles_required("admin")
+def cambiar_estado_usuario(usuario_id):
+    """Activa o desactiva una cuenta de usuario."""
+
+    if not validar_csrf():
+        flash("La solicitud no es válida. Intentá nuevamente.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    if usuario_id == session.get("usuario_id"):
+        flash("No podés desactivar tu propia cuenta.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    db = get_db()
+
+    usuario = db.execute(
+        "SELECT id, rol, activo FROM usuarios WHERE id = ?",
+        (usuario_id,)
+    ).fetchone()
+
+    if usuario is None:
+        flash("El usuario no existe.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    if usuario["rol"] == "admin":
+        flash("No se puede modificar el estado de una cuenta de administrador.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    nuevo_estado = 0 if usuario["activo"] else 1
+
+    try:
+        db.execute(
+            "UPDATE usuarios SET activo = ? WHERE id = ?",
+            (nuevo_estado, usuario_id)
+        )
+        db.commit()
+
+    except sqlite3.Error:
+        db.rollback()
+        flash("No se pudo actualizar el estado de la cuenta.", "error")
+        return redirect(url_for("admin.usuarios"))
+
+    mensaje = "activada" if nuevo_estado else "desactivada"
+
+    flash(
+        f"La cuenta fue {mensaje} correctamente.",
+        "success"
+    )
+
+    return redirect(url_for("admin.usuarios"))
