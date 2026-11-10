@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Mis alojamientos | Humahuaca{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <p class="eyebrow">Área del propietario</p>
+    <h1>Mis alojamientos</h1>
+    <p>
+        Consultá los establecimientos asociados a tu cuenta
+        y el estado de sus publicaciones.
+    </p>
+</section>
+
+<section class="section">
+    <div class="form-panel">
+
+        <h2>Registrar un alojamiento</h2>
+
+        <p>
+            Completá los datos del establecimiento.
+            El alojamiento quedará pendiente de revisión
+            antes de su publicación.
+        </p>
+
+        <form method="POST" class="stack-form">
+
+            <input
+                type="hidden"
+                name="_csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <label for="nombre">Nombre del alojamiento</label>
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                maxlength="150"
+                required
+            >
+
+            <label for="tipo">Tipo de alojamiento</label>
+            <select id="tipo" name="tipo" required>
+                <option value="">Seleccioná una opción</option>
+                <option value="Hotel">Hotel</option>
+                <option value="Hostería">Hostería</option>
+                <option value="Hostel">Hostel</option>
+                <option value="Cabaña">Cabaña</option>
+                <option value="Casa o departamento">Casa o departamento</option>
+                <option value="Habitación">Habitación</option>
+                <option value="Otro">Otro</option>
+            </select>
+
+            <label for="direccion">Dirección o ubicación de referencia</label>
+            <input
+                type="text"
+                id="direccion"
+                name="direccion"
+                maxlength="250"
+                required
+            >
+
+            <label for="capacidad">Capacidad de personas</label>
+            <input
+                type="number"
+                id="capacidad"
+                name="capacidad"
+                min="1"
+                max="1000"
+                value="1"
+                required
+            >
+
+            <label for="telefono">Teléfono de contacto</label>
+            <input
+                type="text"
+                id="telefono"
+                name="telefono"
+                maxlength="40"
+            >
+
+            <label for="servicios">Servicios disponibles</label>
+            <textarea
+                id="servicios"
+                name="servicios"
+                maxlength="2000"
+                rows="3"
+            ></textarea>
+
+            <label for="descripcion">Descripción del alojamiento</label>
+            <textarea
+                id="descripcion"
+                name="descripcion"
+                maxlength="5000"
+                rows="5"
+            ></textarea>
+
+            <button type="submit">Registrar alojamiento</button>
+
+        </form>
+
+    </div>
+</section>
+
+<section class="section">
+
+    <h2>Alojamientos registrados</h2>
+
+    {% if alojamientos %}
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Ubicación</th>
+                        <th>Capacidad</th>
+                        <th>Estado</th>
+			<th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for alojamiento in alojamientos %}
+                        <tr>
+                            <td>
+                                <strong>{{ alojamiento['nombre'] }}</strong>
+                            </td>
+
+                            <td>{{ alojamiento['tipo'] }}</td>
+
+                            <td>
+                                {{ alojamiento['direccion_referencia'] }}
+                            </td>
+
+                            <td>
+                                {{ alojamiento['capacidad'] }} personas
+                            </td>
+
+                            <td>
+                                {{ alojamiento['estado']|capitalize }}
+                            </td>
+			    <td>
+			      <a href="{{ url_for(
+				       'owner.editar_alojamiento',
+				       alojamiento_id=alojamiento['id']
+				       ) }}">
+				Editar
+			      </a>
+			    </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+
+        <p class="empty-state">
+            Todavía no tenés alojamientos registrados.
+        </p>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

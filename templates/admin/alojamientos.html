@@ -39,6 +39,16 @@
             <option>Otro</option>
         </select>
 
+	<label for="propietario_id">Propietario *</label>
+	<select id="propietario_id" name="propietario_id" required>
+	  <option value="">Seleccionar propietario</option>
+	  {% for propietario in propietarios %}
+	  <option value="{{ propietario['id'] }}">
+            {{ propietario['nombre'] }} ({{ propietario['email'] }})
+        </option>
+	  {% endfor %}
+	</select>
+
         <label for="direccion">Dirección o ubicación *</label>
         <input
             id="direccion"

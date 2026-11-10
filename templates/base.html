@@ -17,6 +17,10 @@
 	      <a href="{{ url_for('public.alojamientos') }}">Alojamientos</a>
 
 	      {% if session.get('usuario_id') %}
+
+	      {% if session.get('usuario_rol') == 'propietario' %}
+	          <a href="{{ url_for('owner.dashboard') }}">Mi panel</a>
+	      {% endif %}
               <span>Hola, {{ session.get('usuario_nombre') }}</span>
 
               <form

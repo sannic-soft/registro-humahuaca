@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Editar alojamiento | Humahuaca{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <p class="eyebrow">Área del propietario</p>
+    <h1>Editar alojamiento</h1>
+    <p>
+        Modificá los datos de tu establecimiento.
+        Los cambios no alteran su estado de publicación.
+    </p>
+</section>
+
+<section class="section">
+    <div class="form-panel">
+
+        <form method="POST" class="stack-form">
+
+            <input
+                type="hidden"
+                name="_csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <label for="nombre">Nombre del alojamiento</label>
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                maxlength="150"
+                value="{{ alojamiento['nombre'] }}"
+                required
+            >
+
+            <label for="tipo">Tipo de alojamiento</label>
+            <select id="tipo" name="tipo" required>
+                <option value="">Seleccioná una opción</option>
+                {% for tipo in [
+                    'Hotel',
+                    'Hostería',
+                    'Hostel',
+                    'Cabaña',
+                    'Casa o departamento',
+                    'Habitación',
+                    'Otro'
+                ] %}
+                    <option
+                        value="{{ tipo }}"
+                        {% if alojamiento['tipo'] == tipo %}selected{% endif %}
+                    >
+                        {{ tipo }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="direccion">Dirección o ubicación de referencia</label>
+            <input
+                type="text"
+                id="direccion"
+                name="direccion"
+                maxlength="250"
+                value="{{ alojamiento['direccion_referencia'] }}"
+                required
+            >
+
+            <label for="capacidad">Capacidad de personas</label>
+            <input
+                type="number"
+                id="capacidad"
+                name="capacidad"
+                min="1"
+                max="1000"
+                value="{{ alojamiento['capacidad'] }}"
+                required
+            >
+
+            <label for="telefono">Teléfono de contacto</label>
+            <input
+                type="text"
+                id="telefono"
+                name="telefono"
+                maxlength="40"
+                value="{{ alojamiento['telefono'] }}"
+            >
+
+            <label for="servicios">Servicios disponibles</label>
+            <textarea
+                id="servicios"
+                name="servicios"
+                maxlength="2000"
+                rows="3"
+            >{{ alojamiento['servicios'] }}</textarea>
+
+            <label for="descripcion">Descripción del alojamiento</label>
+            <textarea
+                id="descripcion"
+                name="descripcion"
+                maxlength="5000"
+                rows="5"
+            >{{ alojamiento['descripcion'] }}</textarea>
+
+            <button type="submit">Guardar cambios</button>
+
+            <a href="{{ url_for('owner.dashboard') }}">
+                Volver a mis alojamientos
+            </a>
+
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}

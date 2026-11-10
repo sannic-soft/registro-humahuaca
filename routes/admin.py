@@ -98,7 +98,28 @@ def alojamientos():
             flash("La capacidad debe ser un número entre 1 y 1000.", "error")
             return redirect(url_for("admin.alojamientos"))
 
-        propietario_id = session.get("usuario_id")
+        propietario_id = request.form.get("propietario_id", "").strip()
+
+        try:
+            propietario_id = int(propietario_id)
+            if propietario_id < 1:
+                raise ValueError
+        except ValueError:
+            flash("Seleccioná un propietario válido.", "error")
+            return redirect(url_for("admin.alojamientos"))
+
+        propietario = db.execute(
+            """
+            SELECT id
+            FROM usuarios
+            WHERE id = ? AND rol = 'propietario' AND activo = 1
+            """,
+            (propietario_id,)
+        ).fetchone()
+
+        if propietario is None:
+            flash("El propietario seleccionado no existe o no está activo.", "error")
+            return redirect(url_for("admin.alojamientos"))
 
         try:
             db.execute(
@@ -154,9 +175,19 @@ def alojamientos():
         """
     ).fetchall()
 
+    propietarios = db.execute(
+        """
+        SELECT id, nombre, email
+        FROM usuarios
+        WHERE rol = 'propietario' AND activo = 1
+        ORDER BY nombre ASC
+        """
+    ).fetchall()
+
     return render_template(
         "admin/alojamientos.html",
-        alojamientos=alojamientos
+        alojamientos=alojamientos,
+        propietarios=propietarios
     )
 
 
